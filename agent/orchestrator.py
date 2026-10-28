@@ -93,6 +93,5 @@ def ask_agent(question, history=None):
                         result = {"error":f"Appel d'outil invalide : {type(exc).__name__}: {exc}"}
                 messages.append({"role":"tool","tool_call_id":call["id"],"content":json.dumps(result,ensure_ascii=False,default=str)})
         return "J'ai atteint la limite d'étapes de cet échange. Reformule la demande en la divisant en deux questions."
-            except Exception:
+    except Exception:
         return local_answer(question) + "\n\nLe service IA distant est indisponible; réponse locale de secours utilisée."
-            )

@@ -61,7 +61,7 @@ def ask_agent(question, history=None):
     if not api_key:
         return local_answer(question)
 
-    model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+    model = os.getenv("GROQ_MODEL", "openai/gpt-oss-20b")
     messages = [{"role":"system", "content":SYSTEM_PROMPT}]
     for item in (history or [])[-8:]:
         if item.get("role") in ("user", "assistant") and isinstance(item.get("content"), str):

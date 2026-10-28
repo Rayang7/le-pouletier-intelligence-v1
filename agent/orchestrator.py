@@ -94,17 +94,17 @@ def ask_agent(question, history=None):
                 messages.append({"role":"tool","tool_call_id":call["id"],"content":json.dumps(result,ensure_ascii=False,default=str)})
         return "J'ai atteint la limite d'étapes de cet échange. Reformule la demande en la divisant en deux questions."
         except Exception as exc:
-        import logging
-        logging.exception("Échec de l'appel au service IA distant")
+            import logging
+            logging.exception("Échec de l'appel au service IA distant")
 
-        diagnostic = f"Erreur technique : {type(exc).__name__}"
+            diagnostic = f"Erreur technique : {type(exc).__name__}"
 
-        if isinstance(exc, requests.HTTPError) and exc.response is not None:
+            if isinstance(exc, requests.HTTPError) and exc.response is not None:
             diagnostic += f" (HTTP {exc.response.status_code})"
 
-        return (
-            local_answer(question)
-            + "\n\nLe service IA distant est indisponible."
-            + "\n" + diagnostic
-            + "\nConsulte les journaux Streamlit pour plus de détails."
-        )
+            return (
+                local_answer(question)
+                + "\n\nLe service IA distant est indisponible."
+                + "\n" + diagnostic
+                + "\nConsulte les journaux Streamlit pour plus de détails."
+            )

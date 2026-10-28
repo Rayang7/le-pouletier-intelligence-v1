@@ -52,3 +52,9 @@ tests/
 requirements.txt
 README.md
 ```
+
+## Sauvegarde et restauration (version 2)
+
+L'onglet **Sauvegarde** permet de télécharger un fichier JSON contenant les lots, stocks, dépenses, ventes, tâches et événements d'alerte, puis de restaurer ce fichier. La restauration remplace les données présentes : télécharger une sauvegarde récente avant toute restauration.
+
+Cette fonction ne transforme pas SQLite en base persistante. Sur un hébergement cloud gratuit, les fichiers locaux peuvent être perdus lors de certains redéploiements ou changements d'environnement. Pour un usage réel, prévoir ensuite une base PostgreSQL distante et des sauvegardes régulières.

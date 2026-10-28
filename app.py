@@ -1,5 +1,7 @@
 import streamlit as st
+import json
 from datetime import date
+from agent.backup import backup_json_text, restore_backup
 from agent.db import init_db, connect
 from agent import tools
 from agent.orchestrator import ask_agent
@@ -16,7 +18,7 @@ with st.sidebar:
     st.write("Moteur IA : " + ("API Groq configurée" if st.secrets.get("GROQ_API_KEY", "") else "mode local limité"))
     st.caption("Les alertes sont calculées à l'ouverture et lors de l'actualisation. Ce prototype ne garantit pas une surveillance 24 h/24.")
 
-tabs = st.tabs(["Assistant IA", "Production", "Stocks", "Finances", "Tâches et alertes"])
+tabs = st.tabs(["Assistant IA", "Production", "Stocks", "Finances", "Tâches et alertes", "Sauvegarde"])
 
 with tabs[0]:
     st.subheader("Conversation avec l'agent")
@@ -129,3 +131,36 @@ with tabs[4]:
     st.dataframe(tools.get_due_tasks(), use_container_width=True, hide_index=True)
 
 st.caption("Le Pouletier Intelligence — noyau initial. Valider les données et les recommandations avec des professionnels compétents pour les décisions sanitaires et réglementaires.")
+
+
+with tabs[5]:
+    st.subheader("Sauvegarde et restauration des données")
+    st.warning("La sauvegarde est un fichier à conserver hors de Streamlit. La restauration remplace toutes les données actuelles de l'application par celles du fichier choisi.")
+    st.markdown("### 1. Télécharger une sauvegarde")
+    try:
+        backup_text = backup_json_text()
+        st.download_button(
+            "Télécharger la sauvegarde JSON",
+            data=backup_text,
+            file_name=f"le-pouletier-sauvegarde-{date.today().isoformat()}.json",
+            mime="application/json",
+            help="Conserve ce fichier sur ton ordinateur ou dans un espace de stockage privé."
+        )
+    except Exception as exc:
+        st.error(f"Impossible de créer la sauvegarde : {type(exc).__name__}")
+
+    st.divider()
+    st.markdown("### 2. Restaurer une sauvegarde existante")
+    uploaded = st.file_uploader("Choisir un fichier JSON de sauvegarde", type=["json"], key="backup_upload")
+    confirm_restore = st.checkbox("Je comprends que la restauration remplacera toutes les données actuellement enregistrées.")
+    if st.button("Restaurer les données", type="secondary", disabled=(uploaded is None or not confirm_restore)):
+        try:
+            payload = json.loads(uploaded.getvalue().decode("utf-8"))
+            counts = restore_backup(payload, confirmed=True)
+            total = sum(counts.values())
+            st.success(f"Restauration terminée : {total} enregistrement(s) importé(s).")
+            st.json(counts)
+        except Exception as exc:
+            st.error(f"Restauration impossible : {type(exc).__name__}: {exc}")
+
+    st.caption("Conseil : télécharge une sauvegarde après chaque session de saisie importante. Cette fonction réduit le risque de perte, mais ne remplace pas une base de données distante persistante.")
